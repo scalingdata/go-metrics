@@ -90,6 +90,12 @@ import "github.com/rcrowley/go-metrics/stathat"
 go stathat.Stathat(metrics.DefaultRegistry, 10e9, "example@example.com")
 ```
 
+Start an HTTP server that returns metrics in JSON format:
+
+```go
+go metrics.HttpJson(metrics.DefaultRegistry, "localhost:8080")
+```
+
 Installation
 ------------
 
