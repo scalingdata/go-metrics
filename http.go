@@ -12,7 +12,7 @@ type HttpConfig struct {
   ContentType string   // Value for the 'content-type' header specific to your encoding
 }
 
-type HttpEncoder func (r Registry) ([]byte, error)
+type HttpEncoder func (r Registry, req *http.Request) ([]byte, error)
 
 // Blocking function that starts an HTTP server that responds with
 // a JSON encoded copy of metrics in the registry.
@@ -20,7 +20,7 @@ func HttpJson(r Registry, addr string) {
   HttpFromConfig(HttpConfig{
     Registry: r,
     Addr: addr,
-    Encoder: MarshalJSON,
+    Encoder: jsonHttpEncoder,
     ContentType: "application/json",
   })
 }
@@ -48,7 +48,11 @@ func makeHttpHandler(r Registry, encode HttpEncoder, contentType string) func(ht
     if "" != contentType {
       header.Add("content-type", contentType)
     }
-    data, _ := encode(r)
+    data, _ := encode(r, req)
     w.Write(data)
   }
+}
+
+func jsonHttpEncoder (r Registry, req *http.Request) ([]byte, error) { 
+  return MarshalJSON(r) 
 }
