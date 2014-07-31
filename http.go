@@ -16,8 +16,8 @@ type HttpEncoder func (r Registry, req *http.Request) ([]byte, error)
 
 // Blocking function that starts an HTTP server that responds with
 // a JSON encoded copy of metrics in the registry.
-func HttpJson(r Registry, addr string) {
-  HttpFromConfig(HttpConfig{
+func HttpJson(r Registry, addr string) error {
+  return HttpFromConfig(HttpConfig{
     Registry: r,
     Addr: addr,
     Encoder: jsonHttpEncoder,
@@ -27,8 +27,8 @@ func HttpJson(r Registry, addr string) {
 
 // Blocking function that starts an HTTP server that responds with an encoded
 // version of all metrics in the registry.
-func Http(r Registry, addr string, encoder HttpEncoder, contentType string) {
-  HttpFromConfig(HttpConfig{
+func Http(r Registry, addr string, encoder HttpEncoder, contentType string) error {
+  return HttpFromConfig(HttpConfig{
     Registry: r,
     Addr: addr,
     Encoder: encoder,
@@ -37,9 +37,9 @@ func Http(r Registry, addr string, encoder HttpEncoder, contentType string) {
 }
 
 // Same as Http() but accepts a HttpConfig instead of individual arguments
-func HttpFromConfig(cfg HttpConfig){
+func HttpFromConfig(cfg HttpConfig) error {
   http.HandleFunc("/", makeHttpHandler(cfg.Registry, cfg.Encoder, cfg.ContentType))
-  http.ListenAndServe(cfg.Addr, nil)
+  return http.ListenAndServe(cfg.Addr, nil)
 }
 
 func makeHttpHandler(r Registry, encode HttpEncoder, contentType string) func(http.ResponseWriter, *http.Request) {
