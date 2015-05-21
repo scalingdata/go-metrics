@@ -38,8 +38,9 @@ func Http(r Registry, addr string, encoder HttpEncoder, contentType string) erro
 
 // Same as Http() but accepts a HttpConfig instead of individual arguments
 func HttpFromConfig(cfg HttpConfig) error {
-  http.HandleFunc("/", makeHttpHandler(cfg.Registry, cfg.Encoder, cfg.ContentType))
-  return http.ListenAndServe(cfg.Addr, nil)
+  handler := http.NewServeMux()
+  handler.Handle("/", http.HandlerFunc(makeHttpHandler(cfg.Registry, cfg.Encoder, cfg.ContentType)))
+  return http.ListenAndServe(cfg.Addr, handler)
 }
 
 func makeHttpHandler(r Registry, encode HttpEncoder, contentType string) func(http.ResponseWriter, *http.Request) {
