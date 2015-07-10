@@ -36,10 +36,15 @@ func Http(r Registry, addr string, encoder HttpEncoder, contentType string) erro
   })
 }
 
-// Same as Http() but accepts a HttpConfig instead of individual arguments
-func HttpFromConfig(cfg HttpConfig) error {
+func HttpHandlerFromConfig(cfg HttpConfig) http.Handler {
   handler := http.NewServeMux()
   handler.Handle("/", http.HandlerFunc(makeHttpHandler(cfg.Registry, cfg.Encoder, cfg.ContentType)))
+  return handler
+}
+
+// Same as Http() but accepts a HttpConfig instead of individual arguments
+func HttpFromConfig(cfg HttpConfig) error {
+  handler := HttpHandlerFromConfig(cfg)
   return http.ListenAndServe(cfg.Addr, handler)
 }
 
